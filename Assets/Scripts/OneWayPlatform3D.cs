@@ -1,29 +1,37 @@
 using UnityEngine;
 
-public class OneWayPlatform : MonoBehaviour
+public class OneWayPlatform3D : MonoBehaviour
 {
-    private BoxCollider platformCollider;
+    private BoxCollider col;
+
+    public float offset = 0.05f;
 
     void Start()
     {
-        platformCollider = GetComponent<BoxCollider>();
+        col = GetComponent<BoxCollider>();
+        col.isTrigger = false;
     }
 
-    private void OnCollisionEnter(Collision collision)
+    void Update()
     {
-        if (collision.gameObject.CompareTag("Player"))
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (!player) return;
+
+        CharacterController cc = player.GetComponent<CharacterController>();
+        if (!cc) return;
+
+        float playerBottom = player.transform.position.y - cc.height / 2f;
+        float platformTop = col.bounds.max.y;
+
+        // Player ở DƯỚI → cho xuyên
+        if (playerBottom < platformTop - offset)
         {
-            Rigidbody playerRb = collision.gameObject.GetComponent<Rigidbody>();
-            if (playerRb != null && playerRb.linearVelocity.y > 0) // Nhảy từ dưới lên
-            {
-                platformCollider.enabled = false;
-                Invoke("EnableCollider", 0.3f);
-            }
+            col.enabled = false;
         }
-    }
-
-    void EnableCollider()
-    {
-        platformCollider.enabled = true;
+        // Player ở TRÊN → đứng được
+        else
+        {
+            col.enabled = true;
+        }
     }
 }

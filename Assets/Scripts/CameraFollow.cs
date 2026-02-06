@@ -1,19 +1,28 @@
 using UnityEngine;
 
-public class CameraFollow : MonoBehaviour
+public class FirstPersonCamera : MonoBehaviour
 {
-    public Transform target;           // Kéo Player vào đây
-    public Vector3 offset = new Vector3(0, 5, -10);  // Khoảng cách camera
-    public float smoothSpeed = 0.125f;
+    public float mouseSensitivity = 100f;
+    public Transform playerBody;
 
-    void LateUpdate()
+    float xRotation = 0f;
+
+    void Start()
     {
-        if (target == null) return;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
 
-        Vector3 desiredPosition = target.position + offset;
-        Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
-        transform.position = smoothedPosition;
+    void Update()
+    {
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
-        transform.LookAt(target.position + Vector3.up * 1.5f); // Nhìn vào đầu player
+        xRotation -= mouseY;
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+
+        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+
+        playerBody.Rotate(Vector3.up * mouseX);
     }
 }
